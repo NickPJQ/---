@@ -81,4 +81,4 @@ Detailed steps below:
     - 需要输入光源某顶点的坐标及其相邻两边的方向、光源的强度和颜色
     - 实现方式：
         - 预先设定最大光源数量MAX_LIGHT_NUM，默认为8，在LaunchParams中将原先的一个struct light改为struct light[MAX_LIGHT_NUM]数组，再添加一个整数lightNum记录当前光源数量
-        - 添加函数updateLight来修改launchParams.light
+        - 添加函数updateLight接受输入并修改launchParams.light
