@@ -404,7 +404,7 @@ namespace osc {
         //std::cout << windowSize.x << " " << windowSize.y << std::endl;
         RGBColor* ColorBuffer = new RGBColor[windowSize.x * windowSize.y];
         glReadPixels(0, 0, windowSize.x, windowSize.y, GL_BGR_EXT, GL_UNSIGNED_BYTE, ColorBuffer);
-        WriteBMP("../../screenshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
+        WriteBMP("../Screenshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
         delete[] ColorBuffer;
     }
     /*! callback that window got resized */
