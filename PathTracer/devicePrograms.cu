@@ -6,8 +6,8 @@
 
 using namespace osc;
 
-#define NUM_LIGHT_SAMPLES 5//光源个数
-#define MAXBOUNCE 5;
+#define NUM_LIGHT_SAMPLES 3//计算软阴影时的随机采样个数
+#define MAXBOUNCE 5;//光线弹射次数的上限
 
 namespace osc {
 
@@ -15,27 +15,28 @@ namespace osc {
   extern "C" __constant__ LaunchParams optixLaunchParams;
   extern "C" __constant__ float PI = 3.1415926;
   struct PRD {
-    Random random;
-    vec3f  pixelColor;
-    vec3f  pixelNormal;
-    vec3f  pixelAlbedo;
-	bool done;
-	bool first;
-	vec3f origin;
-	vec3f direction;
-	vec3f attenuation;
+    Random random;//随机数生成函数
+    vec3f  radiance;//光线颜色
+    vec3f  pixelNormal;//像素点法向
+    vec3f  pixelAlbedo;//像素点漫反射系数
+	bool done;//对光线的追踪是否结束
+	bool first;//是否是从相机发出的光线
+	vec3f origin;//光追的出发点
+	vec3f direction;//光追的方向
+	vec3f attenuation;//追踪的光线对像素点颜色影响的系数
   };
-  static __forceinline__ __device__ void cosine_sample_hemisphere(const float u1, const float u2, vec3f &p)
-  {
-	  // Uniformly sample disk.
+
+  //将极坐标转为直角坐标，极轴长度为u1，极角为2PI*u2，在保证z非负的情况下储存在p中
+  static __forceinline__ __device__ void cosine_sample_hemisphere(const float u1, const float u2, vec3f &p){
 	  const float r = u1;
 	  const float phi = 2.0f * PI * u2;
 	  p.x = r * gdt::cos(phi);
 	  p.y = r * gdt::sin(phi);
-	  p.z = sqrtf(fmaxf(0.0f, 1.0f - p.x*p.x - p.y*p.y));
-  }//极坐标转为直角坐标
+	  p.z = sqrtf(fmaxf(0.0f, 1.0f - p.x*p.x - p.y*p.y));//能标准化就标准化，不能就为0，保证在上半球
+  }
   struct Onb
   {
+	  //以m_normal为基础，建立直角坐标系
 	  __forceinline__ __device__ Onb(const vec3f &normal)
 	  {
 		  m_normal = normal;
@@ -57,15 +58,19 @@ namespace osc {
 		  m_tangent = cross(m_binormal, m_normal);
 	  }
 
+	  //将p从建立的坐标系转化到世界坐标系
 	  __forceinline__ __device__ void inverse_transform(vec3f &p) const
 	  {
-		  p = p.x*m_tangent + p.y*m_binormal + p.z*m_normal;//将p从对应坐标系转化到世界坐标系
+		  p = p.x*m_tangent + p.y*m_binormal + p.z*m_normal;
 	  }
 
+	  //三个相互垂直的向量，构成一个直角坐标系
 	  vec3f m_tangent;
 	  vec3f m_binormal;
-	  vec3f m_normal;//三个相互垂直的向量，构成一个类似坐标系的东西
+	  vec3f m_normal;
   };
+
+  //将i0和i1组装成为一个指针
   static __forceinline__ __device__
   void *unpackPointer( uint32_t i0, uint32_t i1 )
   {
@@ -74,6 +79,7 @@ namespace osc {
     return ptr;
   }
 
+  //将指针拆分为两个32位数
   static __forceinline__ __device__
   void  packPointer( void* ptr, uint32_t& i0, uint32_t& i1 )
   {
@@ -82,6 +88,7 @@ namespace osc {
     i1 = uptr & 0x00000000ffffffff;
   }
 
+  //获取PRD所传递的指针
   template<typename T>
   static __forceinline__ __device__ T *getPRD()
   { 
@@ -89,13 +96,18 @@ namespace osc {
     const uint32_t u1 = optixGetPayload_1();
     return reinterpret_cast<T*>( unpackPointer( u0, u1 ) );
   }
-  extern "C" __constant__ float default_F0 = 0.04;
-  extern "C" __constant__ float default_alpha = 0.5;
+
+  extern "C" __constant__ float default_F0 = 0.04;//菲涅尔方程中使用的默认F0
+  extern "C" __constant__ float default_alpha = 0.5;//默认的粗糙度
+
+  //计算半程向量
   static __forceinline__ __device__
 	 vec3f  half_vector(vec3f view, vec3f light){
 	  vec3f half = gdt::normalize(view + light);
 	  return half;
   }
+
+  //定义三位向量之间的特殊乘法，即将对应位置的值相乘，并作为结果向量对应位置的值
   static __forceinline__ __device__
 	  vec3f specialmatch(vec3f a, vec3f b) {
 	  vec3f output;
@@ -104,6 +116,8 @@ namespace osc {
 	  output.z = a.z * b.z;
 	  return output;
   }
+
+  //计算法线分布函数值
   static __forceinline__ __device__
 	float NDF(vec3f normal, vec3f half, float alpha){
 	  float a2 = alpha * alpha;
@@ -115,17 +129,23 @@ namespace osc {
 	  denom = PI * denom * denom;
 	  return nom / denom;
   }
+
+  //计算Schlick-GGX
   static __forceinline__ __device__
 	float GeometrySchlickGGX(float NdotV, float k){
 	  float nom = NdotV;
 	  float denom = NdotV * (1.0 - k) + k;
 	  return nom / denom;
   }
+
+  //计算K_IBL
   static __forceinline__ __device__
 	  float K_IBL(float alpha) {
 	  float k = alpha * alpha / 2;
 	  return k;
   }
+
+  //计算几何函数，这里使用Smith法，并使用Schlick-GGX和K_IBL
   static __forceinline__ __device__
 	float GeometrySmith(vec3f normal, vec3f view, vec3f light, float alpha){
 	  float k = K_IBL(alpha);
@@ -137,11 +157,15 @@ namespace osc {
 	  float ggx2 = GeometrySchlickGGX(NdotL, k);
 	  return ggx1 * ggx2;
   }
+
+  //用Fresnel - Schlick近似法求得菲涅尔方程的近似解
   static __forceinline__ __device__
 	vec3f fresnelSchlick(vec3f half, vec3f view, vec3f F0){
 	  float HdotV = gdt::dot(half, view);
 	  return F0 + (vec3f(1.0) - F0) * (float)pow(1.0 - HdotV, 5.0);
   }
+
+  //计算BRDF
   static __forceinline__ __device__
 	 vec3f BRDF(vec3f view, vec3f light, vec3f normal, vec3f F0, float alpha, vec3f color, vec3f kd, vec3f ks) {
 	  vec3f v = gdt::normalize(view);
@@ -158,12 +182,8 @@ namespace osc {
 	  return former + latter;
   }
 
-
-  
-  extern "C" __global__ void __closesthit__shadow()
-  {
-    /* not going to be used ... */
-  }
+  //不会使用该函数
+  extern "C" __global__ void __closesthit__shadow(){}
   
   extern "C" __global__ void __closesthit__radiance()
   {
@@ -181,12 +201,12 @@ namespace osc {
 	const vec3f &A = sbtData.vertex[index.x];
 	const vec3f &B = sbtData.vertex[index.y];
 	const vec3f &C = sbtData.vertex[index.z];
-	vec3f Ng = gdt::cross(B - A, C - A);
+	vec3f Ng = gdt::cross(B - A, C - A);//获取法向
 	vec3f Ns = (sbtData.normal)
 		? ((1.f - u - v) * sbtData.normal[index.x]
 			+ u * sbtData.normal[index.y]
 			+ v * sbtData.normal[index.z])
-		: Ng;
+		: Ng;//获取贴图的法向，若无贴图就和模型法向一致
 	const vec3f rayDir = optixGetWorldRayDirection();
 
 	if (dot(rayDir, Ng) > 0.f) Ng = -Ng;
@@ -209,11 +229,14 @@ namespace osc {
 	const vec3f surfPos
 		= (1.f - u - v) * sbtData.vertex[index.x]
 		+ u * sbtData.vertex[index.y]
-		+ v * sbtData.vertex[index.z];
-	const vec3f view = gdt::normalize(optixLaunchParams.camera.position - surfPos);
+		+ v * sbtData.vertex[index.z];//计算击中模型的位置坐标
+	const vec3f view = gdt::normalize(optixLaunchParams.camera.position - surfPos);//计算视线向量
 	const int numLightSamples = NUM_LIGHT_SAMPLES;
+
+	//对所有光源进行随机采样
 	for (int lightSampleID = 0; lightSampleID < numLightSamples; lightSampleID++) {
 		for (int lightID = 0;lightID < optixLaunchParams.lightNum; lightID++) {
+			//对光源范围内的点做随机采样
 			const vec3f lightPos
 				= optixLaunchParams.light[lightID].origin
 				+ prd.random() * optixLaunchParams.light[lightID].du
@@ -221,11 +244,15 @@ namespace osc {
 			vec3f lightDir = lightPos - surfPos;
 			float lightDist = gdt::length(lightDir);
 			lightDir = normalize(lightDir);
+
+			//计算光源面积、BRDF、光线和光源法向、模型表面法向的夹角的cos
 			const float area = gdt::length(gdt::cross(optixLaunchParams.light[lightID].du, optixLaunchParams.light[lightID].dv));
 			const vec3f Nl = gdt::normalize(gdt::cross(optixLaunchParams.light[lightID].du, optixLaunchParams.light[lightID].dv));
 			const float NldotL = fabs(gdt::dot(Nl, lightDir));
 			vec3f fr = BRDF(view, lightDir, Ns, vec3f(default_F0), default_alpha, diffuseColor, Kd, Ks);
 			const float NdotL = dot(lightDir, Ns);
+
+			//向光源方向发射光线，判定是否存在遮挡
 			if (NdotL >= 0.f && NldotL >= 0.f) {
 				vec3f lightVisibility = 0.f;
 				uint32_t u0, u1;
@@ -244,6 +271,9 @@ namespace osc {
 					RAY_TYPE_COUNT,               // SBT stride
 					SHADOW_RAY_TYPE,            // missSBTIndex 
 					u0, u1);
+
+				//该点处的直接光照计算，光源的功率*光源颜色*面积*两个夹角的cos*BRDF/距离的平方
+				//因为使用了蒙特卡罗方法计算软阴影，所以要除以采样数
 				dirlight
 					+= lightVisibility
 					* optixLaunchParams.light[lightID].power
@@ -253,7 +283,9 @@ namespace osc {
 			}
 		}
 	}
-	prd.pixelColor += dirlight;
+	prd.radiance += dirlight;//将该点的直接光照颜色加入到整条光线的颜色中
+
+	//在上半球随机生成一个反射的采样方向
 	vec3f random_sample = -Ns;
 	while (gdt::dot(Ns, random_sample) <= 0) {
 		float z1 = prd.random();
@@ -263,11 +295,17 @@ namespace osc {
 		onb.inverse_transform(random_sample);
 	}
 	vec3f lightDir = normalize(random_sample);
+
+	//更新下一次求交的起点和方向
 	prd.direction = lightDir;
 	prd.origin = surfPos;
+
+	//更新光线前的系数
 	vec3f fr = BRDF(view, lightDir, Ns, vec3f(default_F0), default_alpha, diffuseColor, Kd, Ks);
 	float NdotL = gdt::dot(Ns, lightDir);
 	prd.attenuation = specialmatch(NdotL * fr, prd.attenuation);
+
+	//如果是第一次求交，需要传入像素点的法向和漫反射系数
 	if (prd.first) {
 		prd.pixelAlbedo = diffuseColor;
 		prd.pixelNormal = Ns;
@@ -275,51 +313,52 @@ namespace osc {
 	}
   }
   
+  //不会使用该函数
   extern "C" __global__ void __anyhit__radiance(){}
 
+  //不会使用该函数
   extern "C" __global__ void __anyhit__shadow(){}
   
-  extern "C" __global__ void __miss__radiance()
-  {
+  extern "C" __global__ void __miss__radiance(){
     PRD &prd = *getPRD<PRD>();
-	prd.pixelColor = vec3f(1.f);
-	prd.done = true;
+	prd.radiance = vec3f(1.f);//将颜色设定为背景颜色
+	prd.done = true;//标志对这条光线的追踪已经结束
   }
 
   extern "C" __global__ void __miss__shadow()
   {
     vec3f &prd = *(vec3f*)getPRD<vec3f>();
-    prd = vec3f(1.f);
+    prd = vec3f(1.f);//证明物体和光源之间没有遮挡，visibility设置为1
   }
 
-  //------------------------------------------------------------------------------
-  // ray gen program - the actual rendering happens in here
-  //------------------------------------------------------------------------------
   extern "C" __global__ void __raygen__renderFrame()
   {
-    // compute a test pattern based on pixel ID
     const int ix = optixGetLaunchIndex().x;
     const int iy = optixGetLaunchIndex().y;
     const auto &camera = optixLaunchParams.camera;
     
+
+	//创建并初始化prd
     PRD prd;
     prd.random.init(ix+optixLaunchParams.frame.size.x*iy,
                     optixLaunchParams.frame.frameID);
 	prd.attenuation = 1.f;
 	prd.done = false;
-	prd.pixelColor = 0.f;
+	prd.radiance = 0.f;
 	prd.first = true;
 	prd.pixelNormal = 0.f;
 	prd.pixelAlbedo = 0.f;
-
     uint32_t u0, u1;
     packPointer( &prd, u0, u1 );
 
-    int numPixelSamples = optixLaunchParams.numPixelSamples;
+    int numPixelSamples = optixLaunchParams.numPixelSamples;//每个像素点的采样数量
 
+	//传入buffer中，用于绘制和降噪
     vec3f pixelColor = 0.f;
     vec3f pixelNormal = 0.f;
     vec3f pixelAlbedo = 0.f;
+
+	//对像素点进行采样
 	int upperbound = MAXBOUNCE;
     for (int sampleID=0;sampleID<numPixelSamples;sampleID++) {
       vec2f screen(vec2f(ix+prd.random(),iy+prd.random())
@@ -330,7 +369,10 @@ namespace osc {
 	  vec3f rayOrigin = camera.position;
 	  int depth = 0;
 	  vec3f result = 0.f;
-	  while (!prd.done && depth <= upperbound) {
+
+	  //对光线的追踪有三种可能的终止条件：没有打中物体，超过反弹次数上限，俄罗斯罗盘赌（每次的概率为0.1）
+	  while (!prd.done && prd.random() > 0.1f && depth <= upperbound) {
+		  //不断逆向追踪反射光线
 		  optixTrace(optixLaunchParams.traversable,
 			  rayOrigin,
 			  rayDir,
@@ -345,14 +387,15 @@ namespace osc {
 			  u0, u1);
 		  rayOrigin = prd.origin;
 		  rayDir = prd.direction;
-		  result += prd.attenuation * prd.pixelColor;
+		  result += prd.attenuation * prd.radiance;//每次加上新的反射光
 		  depth++;
 	  }
-      pixelColor  += result;
+	  pixelColor += result;
       pixelNormal += prd.pixelNormal;
       pixelAlbedo += prd.pixelAlbedo;
     }
 
+	//向buffer传导相应数据
     vec4f rgba(pixelColor/numPixelSamples,1.f);
     vec4f albedo(pixelAlbedo/numPixelSamples,1.f);
     vec4f normal(pixelNormal/numPixelSamples,1.f);
