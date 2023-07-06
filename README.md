@@ -82,3 +82,7 @@ Detailed steps below:
     - 实现方式：
         - 预先设定最大光源数量MAX_LIGHT_NUM，默认为8，在LaunchParams中将原先的一个struct light改为struct light[MAX_LIGHT_NUM]数组，再添加一个整数lightNum记录当前光源数量
         - 添加函数updateLight接受输入并修改launchParams.light
+
+- 按'D'开关降噪
+- 按','减少每个像素的采样数
+- 按'.'增加每个像素的采样数
