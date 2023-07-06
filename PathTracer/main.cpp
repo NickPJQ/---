@@ -132,6 +132,44 @@ namespace osc {
       if (key == 'L' || key == 'l') {
           sample.updateLight();
       }
+      /*按's'截图*/
+      if (key == 's' || key == 'S') {
+          std::cout << "截图已保存" << std::endl;
+          screenShot();
+      }
+
+
+      /* 相机移动 */
+      vec3f leftVector;
+      if (key == GLFW_KEY_LEFT) {
+          leftVector = cross(cameraFrame.get_up(), cameraFrame.get_at() - cameraFrame.get_from());
+          leftVector = leftVector / dot(leftVector, leftVector);
+          cameraFrame.position += leftVector * cameraFrame.motionSpeed;
+          cameraFrame.modified = true;
+      }
+      if (key == GLFW_KEY_RIGHT) {
+          leftVector = cross(cameraFrame.get_up(), cameraFrame.get_at() - cameraFrame.get_from());
+          leftVector = leftVector / dot(leftVector, leftVector);
+          cameraFrame.position -= leftVector * cameraFrame.motionSpeed;
+          cameraFrame.modified = true;
+      }
+      if (key == GLFW_KEY_UP) {
+          float step = 1e-2 * cameraFrame.motionSpeed;
+          const vec3f poi = cameraFrame.getPOI();
+          const float minReqDistance = 0.1f * cameraFrame.motionSpeed;
+          cameraFrame.poiDistance = max(minReqDistance, cameraFrame.poiDistance - step);
+          cameraFrame.position = poi + cameraFrame.poiDistance * cameraFrame.frame.vz;
+          cameraFrame.modified = true;
+      }
+      if (key == GLFW_KEY_DOWN) {
+          float step = -(1e-2 * cameraFrame.motionSpeed);
+          const vec3f poi = cameraFrame.getPOI();
+          const float minReqDistance = 0.1f * cameraFrame.motionSpeed;
+          cameraFrame.poiDistance = max(minReqDistance, cameraFrame.poiDistance - step);
+          cameraFrame.position = poi + cameraFrame.poiDistance * cameraFrame.frame.vz;
+          cameraFrame.modified = true;
+      }
+
     }
     
 
@@ -184,7 +222,10 @@ namespace osc {
       std::cout << "Press '.' to increase the number of paths/pixel" << std::endl;
       std::cout << "Press 'c' to add a cube" << std::endl;
       std::cout << "Press 'l' to add a light source" << std::endl;
-      window->run();
+      std::cout << "Press 's' to get screenshot" << std::endl;
+      //window->run();
+      window->run_1(&(window->cameraFrame));//显示相机坐标
+
       
     } catch (std::runtime_error& e) {
       std::cout << GDT_TERMINAL_RED << "FATAL ERROR: " << e.what()
