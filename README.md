@@ -70,7 +70,10 @@ Detailed steps below:
 
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
+- 反射部分的计算方程如下：
 - ![e2a30cbb3463e82573fcce14828ee8b](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/b2a942f2-f3b8-41b6-8766-e3cc7ca2718e)
+- 其中的积分我们用黎曼和予以近似，fr即为BRDF
+- BRDF的计算公式为：
 
 ## 交互方式&实现方式
 
