@@ -1,8 +1,9 @@
 ## 写在前面
-实现了一个可以和用户交互的光线追踪程序，代码是在optix7course的基础上完善而来的（来源链接：https://github.com/ingowald/optix7course）本说明文档基本只介绍了新实现的功能。
+实现了一个可以和用户交互的光线追踪程序，代码是在optix7course的基础上完善而来的（来源链接：https://github.com/ingowald/optix7course）
+本说明文档基本只介绍了新实现的功能。
 
 ## 环境配制
-- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.26.0 / VS2019 + Optix 7.5.0 SDK + CUDA + Cmake（以上两个均为本程序作者使用）
+- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.26.0 / VS2019 + Optix 7.5.0 SDK + CUDA12.2 + Cmake3.26.0（以上两个均为本程序作者使用）
 - 最低要求：Optix 7 & CUDA 10 & Cmake 3
 ## 代码构建
 - 在Cmake中选择对应的source文件夹和build文件夹
