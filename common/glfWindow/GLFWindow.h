@@ -383,10 +383,12 @@ namespace osc {
         FILE* fp;//文件指针
 
         //打开文件（没有则创建）
-        fopen_s(&fp, FileName, "wb");
+        errno_t errno__;
+        errno =  fopen_s(&fp, FileName, "wb");
         //std::cout << fp << std::endl;
         if (fp == NULL) {
             std::cout << "open file failed" << std::endl;
+            std::cout << "errno = " << errno << std::endl;
             return;
         }
         //写入文件头和信息头
@@ -404,7 +406,7 @@ namespace osc {
         //std::cout << windowSize.x << " " << windowSize.y << std::endl;
         RGBColor* ColorBuffer = new RGBColor[windowSize.x * windowSize.y];
         glReadPixels(0, 0, windowSize.x, windowSize.y, GL_BGR_EXT, GL_UNSIGNED_BYTE, ColorBuffer);
-        WriteBMP("../Screenshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
+        WriteBMP("../Screesnshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
         delete[] ColorBuffer;
     }
     /*! callback that window got resized */
