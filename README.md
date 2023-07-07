@@ -1,10 +1,11 @@
 ## 环境配制
 - VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.0（为本程序作者使用）
-- 最低要求：Optix 7 CUDA 10 Cmake 3
+- 最低要求：Optix 7 & CUDA 10 & Cmake 3
 ## 代码构建
 - 在Cmake中选择对应的source文件夹和build文件夹
 - 若显示找不到OptiX_INCLUDE，请填入 C:\ProgramData\NVIDIA Corporation\OptiX SDK <version>\SDK\include
 - 若显示找不到OptiX_INSTALL_DIR，请填入 C:\ProgramData\NVIDIA Corporation\OptiX SDK <version>\SDK\
+- 若使用VS2017请注意选择
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
 - 符号说明：v&ω0表示观察方向向量，n表示法向量，l&ωi表示光线方向向量，α表示粗糙度，h为l和v的半程向量。
