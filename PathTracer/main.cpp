@@ -1,19 +1,3 @@
-// ======================================================================== //
-// Copyright 2018-2019 Ingo Wald                                            //
-//                                                                          //
-// Licensed under the Apache License, Version 2.0 (the "License");          //
-// you may not use this file except in compliance with the License.         //
-// You may obtain a copy of the License at                                  //
-//                                                                          //
-//     http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                          //
-// Unless required by applicable law or agreed to in writing, software      //
-// distributed under the License is distributed on an "AS IS" BASIS,        //
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. //
-// See the License for the specific language governing permissions and      //
-// limitations under the License.                                           //
-// ======================================================================== //
-
 #include "SampleRenderer.h"
 
 // our helper library for window handling
@@ -124,22 +108,22 @@ namespace osc {
         std::cout << "num samples/pixel now "
                   << sample.launchParams.numPixelSamples << std::endl;
       }
-      /* ∞¥'c'ÃÌº”∑ΩøÈ */
+      /* Êåâ'c'Ê∑ªÂä†ÊñπÂùó */
       if (key == 'C' || key == 'c') {
           sample.updateAccel();
       }
-      /* ∞¥'l'ÃÌº”π‚‘¥ */
+      /* Êåâ'l'Ê∑ªÂä†ÂÖâÊ∫ê */
       if (key == 'L' || key == 'l') {
           sample.updateLight();
       }
-      /*∞¥'s'ΩÿÕº*/
+      /*Êåâ's'Êà™Âõæ*/
       if (key == 's' || key == 'S') {
-          std::cout << "ΩÿÕº“—±£¥Ê" << std::endl;
+          std::cout << "Êà™ÂõæÂ∑≤‰øùÂ≠ò" << std::endl;
           screenShot();
       }
 
 
-      /* œ‡ª˙“∆∂Ø */
+      /* Áõ∏Êú∫ÁßªÂä® */
       vec3f leftVector;
       if (key == GLFW_KEY_LEFT) {
           leftVector = cross(cameraFrame.get_up(), cameraFrame.get_at() - cameraFrame.get_from());
@@ -195,12 +179,12 @@ namespace osc {
       // (say, <project>/build/)...
       "..CornellBox-Original.obj"
 #endif
-                             );//ƒ£–Õµº»Î
+                             );//Ê®°ÂûãÂØºÂÖ•
       Camera camera = { /*from*/ vec3f(0.0f, 1.0f, 4.0f),//vec3f(-1293.07f, 154.681f, -0.7304f),
                         /* at */model->bounds.center()-vec3f(0,0, 100),
                         /* up */vec3f(0.f,1.f,0.f) };
 
-      // some simple, hard-coded light ... obviously, only works for sponza£®π‚‘¥µƒ¥¥Ω®£©
+      // ÂÖâÊ∫êÁöÑÂàõÂª∫
       const float light_size = 0.25f;
       QuadLight light = { /* origin */ vec3f(0.0f - light_size, 1.96f, 0.0f - light_size),//vec3f(-1000 - light_size,800,-light_size),
                           /* edge 1 */ vec3f(2.f*light_size,0,0),
@@ -213,7 +197,7 @@ namespace osc {
       const float worldScale = length(model->bounds.span());
 
       SampleWindow *window = new SampleWindow("Optix 7 Course Example",
-                                              model,camera,light,worldScale);//¥∞ø⁄µƒtitle
+                                              model,camera,light,worldScale);//Á™óÂè£ÁöÑtitle
       window->enableFlyMode();
       
       std::cout << "Press 'a' to enable/disable accumulation/progressive refinement" << std::endl;
@@ -224,13 +208,13 @@ namespace osc {
       std::cout << "Press 'l' to add a light source" << std::endl;
       std::cout << "Press 's' to get screenshot" << std::endl;
       //window->run();
-      window->run_1(&(window->cameraFrame));//œ‘ æœ‡ª˙◊¯±Í
+      window->run_1(&(window->cameraFrame));//ÊòæÁ§∫Áõ∏Êú∫ÂùêÊ†á
 
       
     } catch (std::runtime_error& e) {
       std::cout << GDT_TERMINAL_RED << "FATAL ERROR: " << e.what()
                 << GDT_TERMINAL_DEFAULT << std::endl;
-	  std::cout << "Did you forget to copy sponza.obj and sponza.mtl into your optix7course/models directory?" << std::endl;
+	  std::cout << "Can't load the right model! The model may not exist!" << std::endl;
 	  exit(1);
     }
     return 0;
