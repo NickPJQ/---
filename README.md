@@ -5,7 +5,9 @@
 - 在Cmake中选择对应的source文件夹和build文件夹
 - 若显示找不到OptiX_INCLUDE，请填入 C:\ProgramData\NVIDIA Corporation\OptiX SDK <version>\SDK\include
 - 若显示找不到OptiX_INSTALL_DIR，请填入C:\ProgramData\NVIDIA Corporation\OptiX SDK <version>\SDK\
-- 若使用VS2017请注意选择CUDA_HOST_COMPILER，请填入C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/bin/HostX86/x64
+- 若使用VS2017请注意选择CUDA_HOST_COMPILER并填入C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/bin/HostX86/x64，注意设置为x64
+- 打开.sln文件后，将PathTracer设定为启动项，运行程序即可
+- 如果报错，考虑删除SampleRenderer.cpp的line 497的“FromPTX”
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
 - 符号说明：v&ω0表示观察方向向量，n表示法向量，l&ωi表示光线方向向量，α表示粗糙度，h为l和v的半程向量。
