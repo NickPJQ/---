@@ -28,21 +28,12 @@ it is required only under Linux.
 
 Detailed steps below:
 ## 环境配制
-- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.0
-- 最低要求：Optix 7 & Cmake 3
-- 
+- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.0（为本程序作者使用）
+- 最低要求：Optix 7 CUDA 10 Cmake 3
 ## 代码构建
-
-- Install Required Packages
-	- see above: CUDA 10.1, OptiX 7 SDK, latest driver, and cmake
-- download or clone the source repository
-- Open `CMake GUI` from your start menu
-	- point "source directory" to the downloaded source directory
-	- point "build directory" to <source directory>/build (agree to create this directory when prompted)
-	- click 'configure', then specify the generator as Visual Studio 2017 or 2019, and the Optional platform as x64. If CUDA, SDK, and compiler are all properly installed this should enable the 'generate' button. If not, make sure all dependencies are properly installed, "clear cache", and re-configure.
-	- click 'generate' (this creates a Visual Studio project and solutions)
-	- click 'open project' (this should open the project in Visual Studio)
-
+- 在Cmake中选择对应的source文件夹和build文件夹
+- 若显示找不到OptiX_INCLUDE
+- 若显示找不到OptiX_INSTALL_DIR
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
 - 符号说明：v&ω0表示观察方向向量，n表示法向量，l表示光线方向向量，α表示粗糙度，h为l和v的半程向量。
