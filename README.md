@@ -28,7 +28,8 @@ it is required only under Linux.
 
 Detailed steps below:
 ## 环境配制
-- VS2017 + Optix 7.7.0 SDK + CUDA 12.2
+- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.0
+- 最低要求：Optix 7 & Cmake 3
 - 
 ## 代码构建
 
