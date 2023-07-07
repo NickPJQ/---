@@ -67,7 +67,9 @@ Detailed steps below:
 	- click 'configure', then specify the generator as Visual Studio 2017 or 2019, and the Optional platform as x64. If CUDA, SDK, and compiler are all properly installed this should enable the 'generate' button. If not, make sure all dependencies are properly installed, "clear cache", and re-configure.
 	- click 'generate' (this creates a Visual Studio project and solutions)
 	- click 'open project' (this should open the project in Visual Studio)
-##基本原理
+
+## 基本原理
+- 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
 ## 交互方式&实现方式
 
 - 按'C'在场景中添加方块
