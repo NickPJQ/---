@@ -86,10 +86,15 @@ Detailed steps below:
 - Gsub中的k为![64dfed4c1ca8ad761b8391520726dd8](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/31091618-064d-4fac-8dc4-54ac41224a9b)
 - F为![3d250c7c38ac26e9f842469ff38b0e0](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/9d2c0551-de7b-4107-a9a3-405e466befa2)
 - 最终我们得到展开公式![caba5e751487dd2d8b97a048c4e96be](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/bd268c8a-b37a-40bf-b87d-36b51ac4c30d)
-
+- 这样我们就实现了对简介光照的计算。
 
 ## 交互方式&实现方式
-
+- 软阴影计算：
+    - 实现方式：
+        - 在每个光源的范围内随机采样，并调用optixtrace（）计算像素点到光源之间是否有遮罩，如果没有就加上这次采样的颜色，最后除以采样总数。
+- 光线追踪：
+    - 实现方式：
+        - 每次采样从相机向目标像素点发射一条光线，这条光线若无交点则结束对这条光线的追踪，否则在辐照度中加上直接光照，在衰减上乘以相应系数，像素点采样的总光照中加上衰减*辐照度，然后再以该像素点位置和对该像素点采样的方向继续追踪，直至反弹次数超过上限或者俄罗斯轮盘赌结束对这条光线的追踪。
 - 按'C'在场景中添加方块
     - 需要输入方块的中心坐标，边长和颜色
     - 实现方式：
