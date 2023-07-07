@@ -28,7 +28,8 @@ it is required only under Linux.
 
 Detailed steps below:
 ## 环境配制
-- VS2017 + Optix 7 SDK + CUDA 10.1
+- VS2017 + Optix 7.7.0 SDK + CUDA 12.2
+- 
 ## Building under Windows
 
 - Install Required Packages
