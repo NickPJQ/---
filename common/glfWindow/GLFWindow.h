@@ -27,7 +27,7 @@
 namespace osc {
   using namespace gdt;
 
-  struct RGBColor {//¶¨ÒåÑÕÉ«¿Õ¼ä
+  struct RGBColor {//å®šä¹‰é¢œè‰²ç©ºé—´
       char R;
       char G;
       char B;
@@ -223,7 +223,7 @@ namespace osc {
       case 'Z':
         fc.setUpVector(fc.upVector==vec3f(0,0,1)?vec3f(0,0,-1):vec3f(0,0,1));
         break;
-        /*Ôö¼Ó¼üÅÌ¿ØÖÆ¹¦ÄÜ*/
+        /*å¢åŠ é”®ç›˜æ§åˆ¶åŠŸèƒ½*/
       case GLFW_KEY_LEFT:
           std::cout << "press left" << std::endl;
           leftVector = cross(fc.get_up(), fc.get_at() - fc.get_from());
@@ -358,18 +358,18 @@ namespace osc {
     void WriteBMP(const char* FileName, RGBColor* ColorBuffer, int ImageWidth, int ImageHeight)
     {
         //std::cout << "enter" << std::endl;
-        //ÑÕÉ«Êı¾İ×Ü³ß´ç£º
+        //é¢œè‰²æ•°æ®æ€»å°ºå¯¸ï¼š
         const int ColorBufferSize = ImageHeight * ImageWidth * sizeof(RGBColor);
 
-        //ÎÄ¼şÍ·
+        //æ–‡ä»¶å¤´
         BITMAPFILEHEADER fileHeader;
-        fileHeader.bfType = 0x4D42;	//0x42ÊÇ'B'£»0x4DÊÇ'M'
+        fileHeader.bfType = 0x4D42;	//0x42æ˜¯'B'ï¼›0x4Dæ˜¯'M'
         fileHeader.bfReserved1 = 0;
         fileHeader.bfReserved2 = 0;
         fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + ColorBufferSize;
         fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
-        //ĞÅÏ¢Í·
+        //ä¿¡æ¯å¤´
         BITMAPINFOHEADER bitmapHeader = { 0 };
         bitmapHeader.biSize = sizeof(BITMAPINFOHEADER);
         bitmapHeader.biHeight = ImageHeight;
@@ -380,9 +380,9 @@ namespace osc {
         bitmapHeader.biCompression = 0; //BI_RGB
 
 
-        FILE* fp;//ÎÄ¼şÖ¸Õë
+        FILE* fp;//æ–‡ä»¶æŒ‡é’ˆ
 
-        //´ò¿ªÎÄ¼ş£¨Ã»ÓĞÔò´´½¨£©
+        //æ‰“å¼€æ–‡ä»¶ï¼ˆæ²¡æœ‰åˆ™åˆ›å»ºï¼‰
         errno_t errno__;
         errno =  fopen_s(&fp, FileName, "wb");
         //std::cout << fp << std::endl;
@@ -391,10 +391,10 @@ namespace osc {
             std::cout << "errno = " << errno << std::endl;
             return;
         }
-        //Ğ´ÈëÎÄ¼şÍ·ºÍĞÅÏ¢Í·
+        //å†™å…¥æ–‡ä»¶å¤´å’Œä¿¡æ¯å¤´
         fwrite(&fileHeader, sizeof(BITMAPFILEHEADER), 1, fp);
         fwrite(&bitmapHeader, sizeof(BITMAPINFOHEADER), 1, fp);
-        //Ğ´ÈëÑÕÉ«Êı¾İ
+        //å†™å…¥é¢œè‰²æ•°æ®
         fwrite(ColorBuffer, ColorBufferSize, 1, fp);
 
         fclose(fp);
@@ -406,7 +406,7 @@ namespace osc {
         //std::cout << windowSize.x << " " << windowSize.y << std::endl;
         RGBColor* ColorBuffer = new RGBColor[windowSize.x * windowSize.y];
         glReadPixels(0, 0, windowSize.x, windowSize.y, GL_BGR_EXT, GL_UNSIGNED_BYTE, ColorBuffer);
-        WriteBMP("../Screesnshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
+        WriteBMP("../../Screesnshot/output.bmp", ColorBuffer, windowSize.x, windowSize.y);
         delete[] ColorBuffer;
     }
     /*! callback that window got resized */
