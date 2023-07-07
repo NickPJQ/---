@@ -36,7 +36,7 @@ Detailed steps below:
 - 若显示找不到OptiX_INSTALL_DIR，请填入 C:\ProgramData\NVIDIA Corporation\OptiX SDK <version>\SDK\
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
-- 符号说明：v&ω0表示观察方向向量，n表示法向量，l表示光线方向向量，α表示粗糙度，h为l和v的半程向量。
+- 符号说明：v&ω0表示观察方向向量，n表示法向量，l&ωi表示光线方向向量，α表示粗糙度，h为l和v的半程向量。
 - 反射部分的计算方程如下：
 - ![e2a30cbb3463e82573fcce14828ee8b](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/b2a942f2-f3b8-41b6-8766-e3cc7ca2718e)
 - 其中的积分我们用黎曼和予以近似，Li为间接光照的辐照度，fr为BRDF。
