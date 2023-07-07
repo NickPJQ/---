@@ -1,8 +1,9 @@
 ## 写在前面
-实现了一个可以和用户交互的光线追踪程序，代码是基于
+实现了一个可以和用户交互的光线追踪程序，代码是在optix7course的基础上完善而来的（来源链接：https://github.com/ingowald/optix7course）
+本说明文档基本只介绍了新实现的功能。
 
 ## 环境配制
-- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.0（为本程序作者使用）
+- VS2017 + Optix 7.7.0 SDK + CUDA 12.2 + Cmake 3.26.0 / VS2019 + Optix 7.5.0 SDK + CUDA12.2 + Cmake3.26.0（以上两个均为本程序作者使用）
 - 最低要求：Optix 7 & CUDA 10 & Cmake 3
 ## 代码构建
 - 在Cmake中选择对应的source文件夹和build文件夹
@@ -32,6 +33,7 @@
 - 这样我们就实现了对简介光照的计算。
 
 ## 交互方式&实现方式
+- 说明：交互中按键均在绘制窗口捕获，请在绘制窗口下按键；输入均在命令行窗口进行，请在命令行中输入数据。
 - 软阴影计算：
     - 实现方式：
         - 在每个光源的范围内随机采样，并调用optixtrace（）计算像素点到光源之间是否有遮罩，如果没有就加上这次采样的颜色，最后除以采样总数。
@@ -39,14 +41,14 @@
     - 实现方式：
         - 每次采样从相机向目标像素点发射一条光线，这条光线若无交点则结束对这条光线的追踪，否则在辐照度中加上直接光照，在衰减上乘以相应系数，像素点采样的总光照中加上衰减*辐照度，然后再以该像素点位置和对该像素点采样的方向继续追踪，直至反弹次数超过上限或者俄罗斯轮盘赌结束对这条光线的追踪。
 - 按'C'在场景中添加方块
-    - 需要输入方块的中心坐标，边长和颜色
+    - 需要输入方块的中心坐标，边长和颜色（均为三维向量）
     - 实现方式：
-        - 预先设定最大可添加方块数量MAX_CUBE_NUM，默认为16，在buildAccel函数建立Acceleration Structure时新增MAX_CUBE_NUM个build input，顶点坐标都设置为0使其不可见，在buildflag中添加         OPTIX_BUILD_FLAG_ALLOW_UPDATE来允许后续对Acceleration Structure的更新；在buildSBT函数中同样新增MAX_CUBE_NUM * RAY_TYPE_COUNT个HitgroupRecord
+        - 预先设定最大可添加方块数量MAX_CUBE_NUM，默认为16，在buildAccel函数建立Acceleration Structure时新增MAX_CUBE_NUM个build input，顶点坐标都设置为0使其不可见，在buildflag中添加OPTIX_BUILD_FLAG_ALLOW_UPDATE来允许后续对Acceleration Structure的更新；在buildSBT函数中同样新增MAX_CUBE_NUM * RAY_TYPE_COUNT个HitgroupRecord
         - 然后添加函数updateAccel，这个函数首先接受输入的方块中心坐标，边长和颜色，然后以坐标和边长建立方块的TriangleMesh，更新对应的buffer和buildinput，然后调用updateSBT函数更新方块颜色，最后将OptixAccelBuildOptions::operation设置为OPTIX_BUILD_OPERATION_UPDATE后调用optixBuildAccel完成更新
         - 添加函数updateSBT来更新对应方块的HitgroupRecord中的color，然后上传到sbt中
 
 - 按'L'在场景中添加长方形光源
-    - 需要输入光源某顶点的坐标及其相邻两边的方向、光源的强度和颜色
+    - 需要输入光源某顶点的坐标及其相邻两边的方向、光源的强度和颜色（除了光源强度外，都为三维向量）
     - 实现方式：
         - 预先设定最大光源数量MAX_LIGHT_NUM，默认为8，在LaunchParams中将原先的一个struct light改为struct light[MAX_LIGHT_NUM]数组，再添加一个整数lightNum记录当前光源数量
         - 添加函数updateLight接受输入并修改launchParams.light
