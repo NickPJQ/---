@@ -70,6 +70,8 @@ Detailed steps below:
 
 ## 基本原理
 - 基于渲染方程实现光线追踪，本程序在计算间接光照时只考虑了来自物体表面上半球的光线，即反射部分。
+- ![e2a30cbb3463e82573fcce14828ee8b](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/b2a942f2-f3b8-41b6-8766-e3cc7ca2718e)
+
 ## 交互方式&实现方式
 
 - 按'C'在场景中添加方块
