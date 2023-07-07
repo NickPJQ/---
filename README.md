@@ -30,7 +30,7 @@ Detailed steps below:
 ## 环境配制
 - VS2017 + Optix 7.7.0 SDK + CUDA 12.2
 - 
-## Building under Windows
+## 代码构建
 
 - Install Required Packages
 	- see above: CUDA 10.1, OptiX 7 SDK, latest driver, and cmake
