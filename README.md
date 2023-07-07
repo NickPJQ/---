@@ -27,35 +27,8 @@ even this one we build on the fly under Windows, so installing
 it is required only under Linux. 
 
 Detailed steps below:
-
-## Building under Linux
-
-- Install required packages
-
-    - on Debian/Ubuntu: `sudo apt install libglfw3-dev cmake-curses-gui`
-    - on RedHat/CentOS/Fedora (tested CentOS 7.7): `sudo yum install cmake3 glfw-devel freeglut-devel`
-
-- Clone the code
-```
-    git clone https://gitee.com/games-assignment/optix7course.git
-    cd optix7course
-```
-
-- create (and enter) a build directory
-```
-    mkdir build
-    cd build
-```
-
-- configure with cmake
-    - Ubuntu: `cmake ..`
-    - CentOS 7: `cmake3 ..`
-
-- and build
-```
-    make
-```
-
+## 环境配制
+- VS2017 + Optix 7 SDK + CUDA 10.1
 ## Building under Windows
 
 - Install Required Packages
