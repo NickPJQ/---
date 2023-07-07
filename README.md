@@ -75,7 +75,8 @@ Detailed steps below:
 - 其中的积分我们用黎曼和予以近似，Li为间接光照的辐照度，fr为BRDF。
 - 本程序使用的是Cook-Torrance BRDF，其计算公式为：
 - ![060a2c0600ecd878eeb90d279b65d44](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/32e3a45f-3138-4257-be61-70093d9ddbaa)
-- 其中的各个部分的计算方式为：
+- 其中kd和ks都可以直接从mtl文件中读取出来。
+- 剩余的各个部分的计算方式为：
 - ![d35ba4c84eb8aebdc3c97a73e6a42f0](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/2f83fa87-c5ef-41e1-a5e3-26157811727e)，其中的c为color
 - ![5995934bc46dd021fab3724c8cdb681](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/f02f6306-9122-44e0-bc1c-e02fec97a940)
 - 上面公式中的D为![b7b2c24d8834bbe3c79d0b88de2e208](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/ddf4700f-c0d6-477d-bc5f-aed2a622aaaf)
