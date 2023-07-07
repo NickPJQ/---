@@ -94,3 +94,7 @@ Detailed steps below:
 - 按'S'键对当前渲染结果截图，保存在./Screenshot中
 	- 实现方式：
  		- 将渲染出的每一个像素RGB值保存起来，按bmp位图格式写入目标文件   
+- 在窗口标题栏显示FPS和当前相机坐标
+	- 实现方式：
+		- 每次渲染新的帧时计数，在一定时间间隔（1s）后更新FPS值
+	   	- 使用glfWINDOW的cameraFrame类维护相机坐标，在每次渲染时更新 
