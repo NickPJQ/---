@@ -67,8 +67,8 @@ Detailed steps below:
 	- click 'configure', then specify the generator as Visual Studio 2017 or 2019, and the Optional platform as x64. If CUDA, SDK, and compiler are all properly installed this should enable the 'generate' button. If not, make sure all dependencies are properly installed, "clear cache", and re-configure.
 	- click 'generate' (this creates a Visual Studio project and solutions)
 	- click 'open project' (this should open the project in Visual Studio)
-
-## 交互方式
+##基本原理
+## 交互方式&实现方式
 
 - 按'C'在场景中添加方块
     - 需要输入方块的中心坐标，边长和颜色
