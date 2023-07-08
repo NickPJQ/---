@@ -30,7 +30,7 @@
 - Gsub中的k为![64dfed4c1ca8ad761b8391520726dd8](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/31091618-064d-4fac-8dc4-54ac41224a9b)
 - F为![3d250c7c38ac26e9f842469ff38b0e0](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/9d2c0551-de7b-4107-a9a3-405e466befa2)
 - 最终我们得到展开公式![caba5e751487dd2d8b97a048c4e96be](https://github.com/NickPJQ/Graphics-RayTracing/assets/104704254/bd268c8a-b37a-40bf-b87d-36b51ac4c30d)
-- 这样我们就实现了对简介光照的计算。
+- 这样我们就实现了对间接光照的计算。
 
 ## 交互方式&实现方式
 - 说明：交互中按键均在绘制窗口捕获，请在绘制窗口下按键；输入均在命令行窗口进行，请在命令行中输入数据。
@@ -53,10 +53,6 @@
         - 预先设定最大光源数量MAX_LIGHT_NUM，默认为8，在LaunchParams中将原先的一个struct light改为struct light[MAX_LIGHT_NUM]数组，再添加一个整数lightNum记录当前光源数量
         - 添加函数updateLight接受输入并修改launchParams.light
 
-- 按'D'开关降噪
-- 按','减少每个像素的采样数
-- 按'.'增加每个像素的采样数
-
 - 使用方向键控制相机位置移动
 
 - 按'S'键对当前渲染结果截图，保存在./Screenshot中
@@ -65,4 +61,8 @@
 - 在窗口标题栏显示FPS和当前相机坐标
 	- 实现方式：
 		- 每次渲染新的帧时计数，在一定时间间隔（1s）后更新FPS值
-	   	- 使用glfWINDOW的cameraFrame类维护相机坐标，在每次渲染时更新 
+	   	- 使用glfWINDOW的cameraFrame类维护相机坐标，在每次渲染时更新
+
+- 按'D'开关降噪
+- 按','减少每个像素的采样数
+- 按'.'增加每个像素的采样数
