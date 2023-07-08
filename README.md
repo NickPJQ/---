@@ -41,7 +41,7 @@
     - 实现方式：
         - 每次采样从相机向目标像素点发射一条光线，这条光线若无交点则结束对这条光线的追踪，否则在辐照度中加上直接光照，在衰减上乘以相应系数，像素点采样的总光照中加上衰减*辐照度，然后再以该像素点位置和对该像素点采样的方向继续追踪，直至反弹次数超过上限或者俄罗斯轮盘赌结束对这条光线的追踪。
 - 按'C'在场景中添加方块
-    - 需要输入方块的中心坐标，边长和颜色（均为三维向量）
+    - 需要输入方块的中心坐标，边长和颜色（除边长以外均为三维向量）
     - 实现方式：
         - 预先设定最大可添加方块数量MAX_CUBE_NUM，默认为16，在buildAccel函数建立Acceleration Structure时新增MAX_CUBE_NUM个build input，顶点坐标都设置为0使其不可见，在buildflag中添加OPTIX_BUILD_FLAG_ALLOW_UPDATE来允许后续对Acceleration Structure的更新；在buildSBT函数中同样新增MAX_CUBE_NUM * RAY_TYPE_COUNT个HitgroupRecord
         - 然后添加函数updateAccel，这个函数首先接受输入的方块中心坐标，边长和颜色，然后以坐标和边长建立方块的TriangleMesh，更新对应的buffer和buildinput，然后调用updateSBT函数更新方块颜色，最后将OptixAccelBuildOptions::operation设置为OPTIX_BUILD_OPERATION_UPDATE后调用optixBuildAccel完成更新
